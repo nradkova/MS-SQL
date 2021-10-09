@@ -22,10 +22,10 @@ GROUP BY DepositGroup
 ---Smallest Deposit Group per Magic Wand Size
 SELECT TOP 2 DepositGroup
 FROM
-      (SELECT DepositGroup
-             ,AvgMagicWandSize= AVG(MagicWandSize) 
-      FROM WizzardDeposits
-      GROUP BY DepositGroup) AS AvgMagicWandSizeSubquery
+    (SELECT DepositGroup
+           ,AvgMagicWandSize= AVG(MagicWandSize) 
+    FROM WizzardDeposits
+    GROUP BY DepositGroup) AS AvgMagicWandSizeSubquery
 ORDER BY AvgMagicWandSize
 
 
@@ -67,17 +67,17 @@ ORDER BY MagicWandCreator,DepositGroup
 SELECT AgeGroup
       ,WizardCount=COUNT(AgeGroup)
 FROM
-      (SELECT AgeGroup=
-                 CASE
-                     WHEN Age<=10 THEN '[0-10]'
-                     WHEN Age>10 AND Age<=20 THEN '[11-20]'
-                     WHEN Age>20 AND Age<=30 THEN '[21-30]'
-                     WHEN Age>30 AND Age<=40 THEN '[31-40]'
-                     WHEN Age>40 AND Age<=50 THEN '[41-50]'
-                     WHEN Age>50 AND Age<=60 THEN '[51-60]'
-                     ELSE '[61+]'
-                 END
-      FROM WizzardDeposits) AS AgeGroupSubquery
+    (SELECT AgeGroup=
+               CASE
+                   WHEN Age<=10 THEN '[0-10]'
+                   WHEN Age>10 AND Age<=20 THEN '[11-20]'
+                   WHEN Age>20 AND Age<=30 THEN '[21-30]'
+                   WHEN Age>30 AND Age<=40 THEN '[31-40]'
+                   WHEN Age>40 AND Age<=50 THEN '[41-50]'
+                   WHEN Age>50 AND Age<=60 THEN '[51-60]'
+                   ELSE '[61+]'
+               END
+    FROM WizzardDeposits) AS AgeGroupSubquery
 GROUP BY AgeGroup 
 
 
@@ -101,25 +101,25 @@ ORDER BY DepositGroup DESC,IsDepositExpired
 ---Rich Wizard, Poor Wizard
 SELECT SumDifference=SUM([Difference])
 FROM
-       (SELECT [Host Wizard]=f.FirstName
-              ,[Host Wizard Deposit]=f.DepositAmount
-              ,[Guest Wizard]=s.FirstName
-              ,[Guest Wizard Deposit]=s.DepositAmount
-              ,[Difference]=f.DepositAmount-s.DepositAmount
-        FROM WizzardDeposits AS f
-        LEFT JOIN WizzardDeposits AS s
-        ON f.Id+1=s.Id) AS MatchingSubquery
+    (SELECT [Host Wizard]=f.FirstName
+           ,[Host Wizard Deposit]=f.DepositAmount
+           ,[Guest Wizard]=s.FirstName
+           ,[Guest Wizard Deposit]=s.DepositAmount
+           ,[Difference]=f.DepositAmount-s.DepositAmount
+     FROM WizzardDeposits AS f
+     LEFT JOIN WizzardDeposits AS s
+     ON f.Id+1=s.Id) AS MatchingSubquery
 
 
 ---Rich Wizard, Poor Wizard(other decision)
 SELECT SumDifference=SUM([Difference])
 FROM
-       (SELECT [Host Wizard]=FirstName
-              ,[Host Wizard Deposit]=DepositAmount
-              ,[Guest Wizard]=LEAD(FirstName) OVER (ORDER BY Id)
-              ,[Guest Wizard Deposit]=LEAD(DepositAmount) OVER (ORDER BY Id)
-              ,[Difference]=DepositAmount-LEAD(DepositAmount) OVER (ORDER BY Id)
-        FROM WizzardDeposits) AS MatchingSubquery
+    (SELECT [Host Wizard]=FirstName
+           ,[Host Wizard Deposit]=DepositAmount
+           ,[Guest Wizard]=LEAD(FirstName) OVER (ORDER BY Id)
+           ,[Guest Wizard Deposit]=LEAD(DepositAmount) OVER (ORDER BY Id)
+           ,[Difference]=DepositAmount-LEAD(DepositAmount) OVER (ORDER BY Id)
+     FROM WizzardDeposits) AS MatchingSubquery
 
 
 
@@ -148,16 +148,16 @@ ORDER BY DepartmentID
 SELECT DepartmentID
       ,AverageSalary=AVG(ReCalcSalary)
 FROM
-      (SELECT DepartmentID
-             ,ReCalcSalary=
-                   CASE
-                       WHEN DepartmentID=1 THEN Salary+5000
-                       ELSE Salary
-                   END
+    (SELECT DepartmentID
+           ,ReCalcSalary=
+                 CASE
+                     WHEN DepartmentID=1 THEN Salary+5000
+                     ELSE Salary
+                 END
       FROM 
 	       (SELECT *
-		    FROM Employees
-			WHERE Salary>30000 AND ManagerID != 42 OR ManagerID IS NULL) AS FilteringSubquery
+            FROM Employees
+            WHERE Salary>30000 AND ManagerID != 42 OR ManagerID IS NULL) AS FilteringSubquery
       ) AS ReCalculationSalarySubquery
 GROUP BY DepartmentID
 
@@ -208,7 +208,7 @@ GROUP BY DepartmentID
 ---Salary Challenge
 SELECT TOP 10 FirstName
       ,LastName
-	  ,e.DepartmentID
+      ,e.DepartmentID
 FROM Employees AS e
 INNER JOIN 
           (SELECT DepartmentID, AvgSalary=AVG(Salary)
@@ -222,11 +222,11 @@ ORDER BY e.DepartmentID
 ---Salary Challenge(other decision)
 SELECT TOP 10 FirstName
       ,LastName
-	  ,e.DepartmentID
+      ,e.DepartmentID
 FROM Employees AS e
 WHERE e.Salary>
               (SELECT AvgSalary=AVG(Salary)
                FROM Employees  AS s
-		       WHERE e.DepartmentID=s.DepartmentID
-		       GROUP BY s.DepartmentID)
+               WHERE e.DepartmentID=s.DepartmentID
+               GROUP BY s.DepartmentID)
 ORDER BY e.DepartmentID
