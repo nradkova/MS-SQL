@@ -3,9 +3,9 @@ USE SoftUniFunc
 
 ---Employee Address
 SELECT TOP 5 e.EmployeeID
-            ,e.JobTitle
-			,e.AddressID
-			,a.AddressText
+      ,e.JobTitle
+      ,e.AddressID
+      ,a.AddressText
 FROM Employees AS e
 LEFT JOIN Addresses AS a
 ON e.AddressID=a.AddressID
@@ -14,9 +14,9 @@ ORDER BY e.AddressID
 
 ---Addresses with Towns
 SELECT TOP 50 e.FirstName
-             ,e.LastName
-			 ,t.Name AS Town
-			 ,a.AddressText
+      ,e.LastName
+      ,t.Name AS Town
+      ,a.AddressText
 FROM Employees AS e
 LEFT JOIN Addresses AS a
 ON e.AddressID=a.AddressID
@@ -29,8 +29,8 @@ ORDER BY e.FirstName
 ---Sales Employee
 SELECT e.EmployeeID
       ,e.FirstName
-	  ,e.LastName
-	  ,d.Name AS DepartmentName
+      ,e.LastName
+      ,d.Name AS DepartmentName
 FROM Employees AS e
 LEFT JOIN Departments AS d
 ON e.DepartmentID=d.DepartmentID
@@ -41,8 +41,8 @@ ORDER BY e.EmployeeID
 ---Employee Departments
 SELECT TOP 5 e.EmployeeID
       ,e.FirstName
-	  ,e.Salary
-	  ,d.Name AS DepartmentName
+      ,e.Salary
+      ,d.Name AS DepartmentName
 FROM Employees AS e
 LEFT JOIN Departments AS d
 ON e.DepartmentID=d.DepartmentID
@@ -65,8 +65,8 @@ ORDER BY e.EmployeeID
 ---Employees Hired After
 SELECT e.FirstName
       ,e.LastName
-	  ,e.HireDate
-	  ,d.Name AS DeptName
+      ,e.HireDate
+      ,d.Name AS DeptName
 FROM Employees AS e
 LEFT JOIN Departments AS d
 ON e.DepartmentID=d.DepartmentID
@@ -77,7 +77,7 @@ ORDER BY e.HireDate
 ---Employees with Project
 SELECT TOP 5 e.EmployeeID
       ,e.FirstName
-	  ,p.Name AS ProjectName
+      ,p.Name AS ProjectName
 FROM Employees AS e
 INNER JOIN EmployeesProjects AS ep
 ON e.EmployeeID=ep.EmployeeID
@@ -90,11 +90,11 @@ ORDER BY e.EmployeeID
 ---Employee 24
 SELECT e.EmployeeID
       ,e.FirstName
-	  ,ProjectName=
-	  CASE
-	      WHEN DATEPART(YEAR,p.StartDate)>=2005  THEN NULL
-		  ELSE p.Name
-	   END 
+      ,ProjectName=
+        CASE
+          WHEN DATEPART(YEAR,p.StartDate)>=2005  THEN NULL
+          ELSE p.Name
+        END 
 FROM Employees AS e
 INNER JOIN EmployeesProjects AS ep
 ON e.EmployeeID=ep.EmployeeID
@@ -106,8 +106,8 @@ WHERE e.EmployeeID=24
 ---Employee Manager
 SELECT e.EmployeeID
       ,e.FirstName
-	  ,e.ManagerID
-	  ,m.FirstName AS ManagerName
+      ,e.ManagerID
+      ,m.FirstName AS ManagerName
 FROM Employees AS e
 INNER JOIN Employees AS m
 ON e.ManagerID=m.EmployeeID
@@ -118,8 +118,8 @@ ORDER BY e.EmployeeID
 ---Employee Summary
 SELECT TOP 50 e.EmployeeID
       ,CONCAT(e.FirstName,' ',e.LastName) AS EmployeeName
-	  ,CONCAT(m.FirstName,' ',m.LastName) AS ManagerName
-	  ,d.Name AS DepartmentName
+      ,CONCAT(m.FirstName,' ',m.LastName) AS ManagerName
+      ,d.Name AS DepartmentName
 FROM Employees AS e
 INNER JOIN Employees AS m
 ON e.ManagerID=m.EmployeeID
@@ -131,10 +131,10 @@ ORDER BY e.EmployeeID
 ---Min Average Salary
 SELECT MIN(a.AvrSalary) AS MinAverageSalary
 FROM
-     (SELECT e.DepartmentID
-            ,AVG(e.Salary) AS AvrSalary
-     FROM Employees AS e 
-     GROUP BY e.DepartmentID) AS a
+      (SELECT e.DepartmentID
+             ,AVG(e.Salary) AS AvrSalary
+       FROM Employees AS e 
+       GROUP BY e.DepartmentID) AS a
 
 
 
@@ -145,8 +145,8 @@ USE Geography
 ---Highest Peaks in Bulgaria
 SELECT c.CountryCode
       ,m.MountainRange
-	  ,p.PeakName
-	  ,p.Elevation
+      ,p.PeakName
+      ,p.Elevation
 FROM Countries AS c
 INNER JOIN MountainsCountries AS mc
 ON c.CountryCode=mc.CountryCode
@@ -160,7 +160,7 @@ ORDER BY p.Elevation DESC
 
 --Count Mountain Ranges
 SELECT c.CountryCode
-	  ,COUNT(mc.MountainId) AS MountainRanges
+      ,COUNT(mc.MountainId) AS MountainRanges
 FROM Countries AS c
 LEFT JOIN MountainsCountries AS mc
 ON c.CountryCode=mc.CountryCode
@@ -183,16 +183,16 @@ ORDER BY c.CountryName
 ---Continents and Currencies
 SELECT ContinentCode
       ,CurrencyCode
-	  ,CurrencyUsage
+      ,CurrencyUsage
 FROM
       (SELECT *
              ,CurrencyRank=DENSE_RANK() OVER (PARTITION BY ContinentCode ORDER BY CurrencyUsage DESC )
        FROM
-              (SELECT ContinentCode
-                     ,CurrencyCode
-                     ,CurrencyUsage=COUNT(CurrencyCode)
-               FROM Countries
-               GROUP BY ContinentCode,CurrencyCode) AS CurrencyGroupingSubquery
+             (SELECT ContinentCode
+                    ,CurrencyCode
+                    ,CurrencyUsage=COUNT(CurrencyCode)
+              FROM Countries
+              GROUP BY ContinentCode,CurrencyCode) AS CurrencyGroupingSubquery
        WHERE CurrencyUsage>1) AS CurrencyCountSubquery
 WHERE CurrencyRank=1
 GROUP BY ContinentCode,CurrencyCode,CurrencyUsage
@@ -201,7 +201,7 @@ GROUP BY ContinentCode,CurrencyCode,CurrencyUsage
 ---Countries Without Any Mountains
 SELECT COUNT(CountryCode) AS Count
 FROM
-       (SELECT c.CountryCode,mc.MountainId
+      (SELECT c.CountryCode,mc.MountainId
        FROM Countries AS c
        LEFT JOIN MountainsCountries AS mc
        ON c.CountryCode=mc.CountryCode
@@ -227,20 +227,20 @@ ON cr.RiverId=r.Id
 GROUP BY c.CountryName
 ORDER BY HighestPeakElevation DESC
         ,LongestRiverLength DESC
-		,c.CountryName
+        ,c.CountryName
 
 
 ---Highest Peak Name and Elevation by Country
 SELECT TOP 5 CountryName AS Country
       ,[Highest Peak Name]=ISNULL(PeakName,'(no highest peak)')
-	  ,[Highest Peak Elevation]=ISNULL(Elevation,0)
-	  ,Mountain=ISNULL(MountainRange,'(no mountain)')
+      ,[Highest Peak Elevation]=ISNULL(Elevation,0)
+      ,Mountain=ISNULL(MountainRange,'(no mountain)')
 FROM
       (SELECT c.CountryName
-              ,p.PeakName
-			  ,p.Elevation
-      	      ,m.MountainRange
-			  ,DENSE_RANK() OVER (PARTITION BY c.CountryCode ORDER BY p.Elevation DESC) AS [Rank]
+             ,p.PeakName
+             ,p.Elevation
+             ,m.MountainRange
+             ,DENSE_RANK() OVER (PARTITION BY c.CountryCode ORDER BY p.Elevation DESC) AS [Rank]
       FROM Countries AS c
       LEFT JOIN MountainsCountries AS mc
       ON c.CountryCode=mc.CountryCode
