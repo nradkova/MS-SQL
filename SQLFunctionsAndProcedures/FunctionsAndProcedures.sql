@@ -266,13 +266,13 @@ BEGIN
 	  SET @sum=(SELECT SumCash=SUM(s.Cash) 
                 FROM
                     (SELECT *,RowNumber=ROW_NUMBER() OVER (ORDER BY Cash DESC)
-	                FROM UsersGames
-	                WHERE GameId=@id) AS s
+                     FROM UsersGames
+                     WHERE GameId=@id) AS s
                 WHERE s.RowNumber%2<>0
                 GROUP BY s.GameId)
      INSERT INTO @output VALUES (@sum)
 	-- SELECT * FROM @output
-	RETURN
+     RETURN
 END
 
 GO
