@@ -196,6 +196,60 @@ ORDER BY PartId
 
 -------Section 4. Programmability
 ---	Place Order
+GO
+
+CREATE OR ALTER PROCEDURE usp_PlaceOrder @jobId INT, @serialNumber VARCHAR(50),@quantity INT
+AS
+             IF @quantity<=0
+             THROW 50012 , 'Part quantity must be more than zero!',1
+             
+             IF (SELECT JobId FROM Jobs WHERE JobId=@jobId) IS NULL
+             THROW 50013 , 'Job not found!',1
+             
+             IF (SELECT Status FROM Jobs WHERE JobId=@jobId)='Finished'
+             THROW 50011 , 'This job is not active!',1
+
+      DECLARE @tpartId INT=(SELECT PartId 
+                            FROM Parts 
+                            WHERE SerialNumber=@serialNumber)
+
+             IF @tpartId IS NULL
+             THROW 50014 , 'Part not found!',1
+     
+      DECLARE @orderId INT=(SELECT TOP 1 OrderId
+                            FROM ORDERS
+                            WHERE JobId=@jobId AND IssueDate IS NULL)
+
+             IF @orderId IS NULL
+             BEGIN
+                INSERT INTO Orders (JobId,IssueDate,Delivered) VALUES
+                   (@jobId,NULL,0)
+                DECLARE @newOrderId INT=(SELECT TOP 1 OrderId FROM Orders ORDER BY OrderId DESC)
+                INSERT INTO OrderParts VALUES
+                   (@newOrderId,@tpartId,@quantity)
+             END
+            
+             IF @orderId IS NOT NULL 
+             BEGIN
+                IF @tpartId IN (SELECT PartId FROM OrderParts WHERE OrderId=@orderId) 
+                UPDATE OrderParts
+                SET Quantity+=@quantity
+                WHERE PartId=@tpartId AND OrderId=@orderId
+              
+                ELSE
+                INSERT INTO OrderParts VALUES
+                  (@orderId,@tpartId,@quantity)
+             END
+GO
+
+--DECLARE @err_msg AS NVARCHAR(MAX);
+--BEGIN TRY
+--  EXEC usp_PlaceOrder 1, 'ZeroQuantity', 0
+--END TRY
+--BEGIN CATCH
+--  SET @err_msg = ERROR_MESSAGE();
+--  SELECT @err_msg
+--END CATCH
 
 
 ---Cost Of Order
@@ -215,4 +269,4 @@ END
 
 GO
 
---SELECT dbo.udf_GetCost(1000)
+SELECT dbo.udf_GetCost(1000)
