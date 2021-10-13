@@ -130,3 +130,66 @@ GROUP BY ss.SubjectId,s.Name
 ORDER BY ss.SubjectId
 
 
+
+
+
+
+-------Section 4. Programmability 
+
+---Exam Grades
+GO
+
+CREATE OR ALTER FUNCTION udf_ExamGradesToUpdate(@studentId INT , @grade DECIMAL(15,2))
+RETURNS NVARCHAR (100)
+AS
+BEGIN
+       IF @grade>6
+       RETURN 'Grade cannot be above 6.00!'
+
+       IF @studentId NOT IN (SELECT Id FROM Students)
+       RETURN 'The student with provided id does not exist in the school!'
+
+       DECLARE @count INT 
+       DECLARE @name NVARCHAR(20)
+       SET @count=(SELECT COUNT(se.Grade) 
+                   FROM Students AS s
+                  JOIN StudentsExams AS se ON s.Id=se.StudentId
+                   WHERE s.Id=@studentId AND Grade BETWEEN @grade AND @grade+0.5)
+       SET @name= (SELECT FirstName
+                   FROM Students 
+                   WHERE Id=@studentId)
+       
+       RETURN CONCAT('You have to update ',@count,' grades for the student ',@name)
+END 
+
+GO
+
+--SELECT dbo.udf_ExamGradesToUpdate(12, 6.20)
+
+--SELECT dbo.udf_ExamGradesToUpdate(12, 5.50)
+
+--SELECT dbo.udf_ExamGradesToUpdate(121, 5.50)
+
+
+--Exclude From School
+GO
+
+CREATE OR ALTER PROCEDURE usp_ExcludeFromSchool @studentId INT 
+AS
+        IF @studentId NOT IN (SELECT Id FROM Students)
+        THROW 50001,'This school has no student with the provided id!',1
+
+        DELETE FROM StudentsTeachers
+        WHERE StudentId=@studentId 
+        DELETE FROM StudentsExams
+        WHERE StudentId=@studentId 
+        DELETE FROM StudentsSubjects
+        WHERE StudentId=@studentId 
+        DELETE FROM Students
+        WHERE Id=@studentId
+GO
+
+--EXEC usp_ExcludeFromSchool 301
+
+--EXEC usp_ExcludeFromSchool 1
+--SELECT COUNT(*) FROM Students
