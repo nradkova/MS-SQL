@@ -219,16 +219,6 @@ AS
       DECLARE @orderId INT=(SELECT TOP 1 OrderId
                             FROM ORDERS
                             WHERE JobId=@jobId AND IssueDate IS NULL)
-
-             IF @orderId IS NULL
-             BEGIN
-                INSERT INTO Orders (JobId,IssueDate,Delivered) VALUES
-                   (@jobId,NULL,0)
-                DECLARE @newOrderId INT=(SELECT TOP 1 OrderId FROM Orders ORDER BY OrderId DESC)
-                INSERT INTO OrderParts VALUES
-                   (@newOrderId,@tpartId,@quantity)
-             END
-            
              IF @orderId IS NOT NULL 
              BEGIN
                 IF @tpartId IN (SELECT PartId FROM OrderParts WHERE OrderId=@orderId) 
@@ -239,6 +229,15 @@ AS
                 ELSE
                 INSERT INTO OrderParts VALUES
                   (@orderId,@tpartId,@quantity)
+             END
+
+             IF @orderId IS NULL
+             BEGIN
+                INSERT INTO Orders (JobId,IssueDate,Delivered) VALUES
+                   (@jobId,NULL,0)
+                DECLARE @newOrderId INT=(SELECT TOP 1 OrderId FROM Orders ORDER BY OrderId DESC)
+                INSERT INTO OrderParts VALUES
+                   (@newOrderId,@tpartId,@quantity)
              END
 GO
 
